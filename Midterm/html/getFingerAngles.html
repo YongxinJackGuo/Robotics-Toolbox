@@ -1,0 +1,230 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getFingerAngles</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-09"><meta name="DC.source" content="getFingerAngles.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [joint_angles_1,joint_angles_2,joint_angles_3] = getFingerAngles(contact_pts,body_config,base_pts,rpy,body_consts,RRR_phi)
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+
+<span class="comment">% body_consts</span>
+l1_1 = body_consts(1);
+l2_1 = body_consts(2);
+l1_2 = body_consts(3);
+l2_2 = body_consts(4);
+l3_2 = body_consts(5);
+l1_3 = body_consts(6);
+l2_3 = body_consts(7);
+l3_3 = body_consts(8);
+<span class="comment">% contact pts</span>
+contact_pt_1 = contact_pts(:,1);
+contact_pt_2 = contact_pts(:,2);
+contact_pt_3 = contact_pts(:,3);
+<span class="comment">% body_config</span>
+T_OToP = body_config;
+<span class="comment">% rpy</span>
+rpy_1 = rpy(:,1);
+rpy_2 = rpy(:,2);
+rpy_3 = rpy(:,3);
+<span class="comment">% get rotation matrix</span>
+R_1 = RPY_to_Rot(rpy_1);
+R_2 = RPY_to_Rot(rpy_2);
+R_3 = RPY_to_Rot(rpy_3);
+<span class="comment">% get position vector;</span>
+P_1 = base_pts(:,1);
+P_2 = base_pts(:,2);
+P_3 = base_pts(:,3);
+<span class="comment">% Assign transformation matrix T_FiToP from finger frame {Fi} to {P}</span>
+z = [0 0 0];
+T_F1ToP = [R_1,P_1;z,1];
+T_F2ToP = [R_2,P_2;z,1];
+T_F3ToP = [R_3,P_3;z,1];
+<span class="comment">% get inverse of T_FiToP</span>
+T_F1ToP_inv = getTransInv(T_F1ToP);
+T_F2ToP_inv = getTransInv(T_F2ToP);
+T_F3ToP_inv = getTransInv(T_F3ToP);
+<span class="comment">% Compute contact point expressed in frame {Fi}.</span>
+contact_pt_1_F1 = T_F1ToP_inv * T_OToP * [contact_pt_1;1];
+contact_pt_2_F2 = T_F2ToP_inv * T_OToP * [contact_pt_2;1];
+contact_pt_3_F3 = T_F3ToP_inv * T_OToP * [contact_pt_3;1];
+
+
+<span class="comment">% use RR and RRR IK algorithms</span>
+joint_angles_1 = RR_inverse_2D([l1_1;l2_1],contact_pt_1_F1(2:3));
+joint_angles_2 = RRR_inverse_2D([l1_2;l2_2;l3_2],[contact_pt_2_F2(2:3);RRR_phi(1)]);
+joint_angles_3 = RRR_inverse_2D([l1_3;l2_3;l3_3],[contact_pt_3_F3(2:3);RRR_phi(2)]);
+
+<span class="comment">% offset the joint angle since zero reference line is different, as</span>
+<span class="comment">% illustrated in the midterm paper. The offset value is -pi/2.</span>
+<span class="keyword">if</span>  isstring(joint_angles_1) == 1
+    <span class="comment">% do nothing, point not accessible.</span>
+<span class="keyword">else</span>
+    joint_angles_1(1,:) = joint_angles_1(1,:) - pi/2;
+<span class="keyword">end</span>
+
+
+
+<span class="keyword">if</span>  isstring(joint_angles_2) == 1
+    <span class="comment">% do nothing, point not accessible.</span>
+<span class="keyword">else</span>
+    joint_angles_2(1,:) = joint_angles_2(1,:) - pi/2;
+<span class="keyword">end</span>
+
+
+
+<span class="keyword">if</span>  isstring(joint_angles_3) == 1
+    <span class="comment">% do nothing, point not accessible.</span>
+<span class="keyword">else</span>
+    joint_angles_3(1,:) = joint_angles_3(1,:) - pi/2;
+<span class="keyword">end</span>
+
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in getFingerAngles (line 5)
+l1_1 = body_consts(1);
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [joint_angles_1,joint_angles_2,joint_angles_3] = getFingerAngles(contact_pts,body_config,base_pts,rpy,body_consts,RRR_phi)
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+
+% body_consts
+l1_1 = body_consts(1);
+l2_1 = body_consts(2);
+l1_2 = body_consts(3);
+l2_2 = body_consts(4);
+l3_2 = body_consts(5);
+l1_3 = body_consts(6);
+l2_3 = body_consts(7);
+l3_3 = body_consts(8);
+% contact pts
+contact_pt_1 = contact_pts(:,1);
+contact_pt_2 = contact_pts(:,2);
+contact_pt_3 = contact_pts(:,3);
+% body_config
+T_OToP = body_config;
+% rpy
+rpy_1 = rpy(:,1);
+rpy_2 = rpy(:,2);
+rpy_3 = rpy(:,3);
+% get rotation matrix
+R_1 = RPY_to_Rot(rpy_1);
+R_2 = RPY_to_Rot(rpy_2);
+R_3 = RPY_to_Rot(rpy_3);
+% get position vector;
+P_1 = base_pts(:,1);
+P_2 = base_pts(:,2);
+P_3 = base_pts(:,3);
+% Assign transformation matrix T_FiToP from finger frame {Fi} to {P}
+z = [0 0 0];
+T_F1ToP = [R_1,P_1;z,1]; 
+T_F2ToP = [R_2,P_2;z,1];
+T_F3ToP = [R_3,P_3;z,1];
+% get inverse of T_FiToP
+T_F1ToP_inv = getTransInv(T_F1ToP);
+T_F2ToP_inv = getTransInv(T_F2ToP);
+T_F3ToP_inv = getTransInv(T_F3ToP);
+% Compute contact point expressed in frame {Fi}.
+contact_pt_1_F1 = T_F1ToP_inv * T_OToP * [contact_pt_1;1];
+contact_pt_2_F2 = T_F2ToP_inv * T_OToP * [contact_pt_2;1];
+contact_pt_3_F3 = T_F3ToP_inv * T_OToP * [contact_pt_3;1];
+
+
+% use RR and RRR IK algorithms
+joint_angles_1 = RR_inverse_2D([l1_1;l2_1],contact_pt_1_F1(2:3));
+joint_angles_2 = RRR_inverse_2D([l1_2;l2_2;l3_2],[contact_pt_2_F2(2:3);RRR_phi(1)]);
+joint_angles_3 = RRR_inverse_2D([l1_3;l2_3;l3_3],[contact_pt_3_F3(2:3);RRR_phi(2)]);
+
+% offset the joint angle since zero reference line is different, as
+% illustrated in the midterm paper. The offset value is -pi/2.
+if  isstring(joint_angles_1) == 1
+    % do nothing, point not accessible.
+else
+    joint_angles_1(1,:) = joint_angles_1(1,:) - pi/2;
+end
+
+
+
+if  isstring(joint_angles_2) == 1
+    % do nothing, point not accessible.
+else
+    joint_angles_2(1,:) = joint_angles_2(1,:) - pi/2;
+end
+
+
+
+if  isstring(joint_angles_3) == 1
+    % do nothing, point not accessible.
+else
+    joint_angles_3(1,:) = joint_angles_3(1,:) - pi/2;
+end
+
+
+end
+
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,164 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getContactPt</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-09"><meta name="DC.source" content="getContactPt.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% P1 Q(b). A function that takes joint angles and body configs as the input and output the contact points for four legs</span>
+<span class="keyword">function</span> contact_pts = getContactPt(joint_angles,body_configs,body_consts)
+    <span class="comment">% joint angles is a 2 by 4 matrix that consists of two angles from each</span>
+    <span class="comment">% of four legs.</span>
+    <span class="comment">% body configurations is a transformation matrix</span>
+    <span class="comment">% body consts stores constants associated with the robot, such as</span>
+    <span class="comment">% link length, body length and width. body_consts=[l1;l2;w;l];</span>
+    w = body_consts(3); <span class="comment">% x-component distance from the hip to the body center.</span>
+    l = body_consts(4); <span class="comment">% y-component distance from the hip to the body center.</span>
+    l1 = body_consts(1); <span class="comment">% link length 1</span>
+    l2 = body_consts(2); <span class="comment">% link length 2</span>
+    I = eye(3);
+    contact_pts = zeros(4,4); <span class="comment">% assign contact points beforehand. it is 4 by 4 matrix becaue of homo. rep. for points</span>
+    legNum = 4; <span class="comment">% assign leg number.</span>
+    T_BToW = body_configs; <span class="comment">% assign the transformation matrix from body frame to world frame first</span>
+    <span class="comment">% assign the position vector between the body frame to the hip frames</span>
+    <span class="comment">% expressed in body frame.</span>
+    P_bToh1 = [w;-l;0];
+    P_bToh2 = [-w;-l;0];
+    P_bToh3 = [-w;l;0];
+    P_bToh4 = [w;l;0];
+    <span class="comment">% put them in a aggregated matrix for being easier to assign them in</span>
+    <span class="comment">% the transformation matrix from hip frame to body frame.</span>
+    P_bTohi = [P_bToh1,P_bToh2,P_bToh3,P_bToh4];
+    <span class="keyword">for</span> i = 1:legNum
+        T_HiToB = [I,P_bTohi(:,i);[0 0 0],1]; <span class="comment">% transformation matrix from hip to body</span>
+        <span class="comment">% assign theta 1 and 2 for each of four legs.</span>
+        theta1i = joint_angles(1,i);
+        theta2i = joint_angles(2,i);
+        <span class="comment">% create the position vector from contact point to the hip joint</span>
+        <span class="comment">% expressed in hip frame {H}.</span>
+        P_tiToHi = [0;l1*cos(theta1i)+l2*cos(theta1i+theta2i);l1*sin(theta1i)+l2*sin(theta1i+theta2i);1];
+        <span class="comment">% Convert the vector P_tiToHi expressed in hip frame {H} to P_tiToB</span>
+        <span class="comment">% expressed in body frame {B}.</span>
+        P_tiToB = T_HiToB * P_tiToHi;
+        <span class="comment">% Convert P_tiToB expressed in {B} to P_tiToW expressed in world</span>
+        <span class="comment">% frame {W}, which are just the contact points we're looking for.</span>
+        P_tiToW = T_BToW * P_tiToB;
+        <span class="comment">% assign the contact point for each of four legs into contact_pt</span>
+        <span class="comment">% aggregated matrix.</span>
+        contact_pts(:,i) = P_tiToW;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in getContactPt (line 8)
+    w = body_consts(3); % x-component distance from the hip to the body center.
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% P1 Q(b). A function that takes joint angles and body configs as the input and output the contact points for four legs
+function contact_pts = getContactPt(joint_angles,body_configs,body_consts)
+    % joint angles is a 2 by 4 matrix that consists of two angles from each
+    % of four legs.
+    % body configurations is a transformation matrix
+    % body consts stores constants associated with the robot, such as
+    % link length, body length and width. body_consts=[l1;l2;w;l];
+    w = body_consts(3); % x-component distance from the hip to the body center.
+    l = body_consts(4); % y-component distance from the hip to the body center.
+    l1 = body_consts(1); % link length 1
+    l2 = body_consts(2); % link length 2
+    I = eye(3);
+    contact_pts = zeros(4,4); % assign contact points beforehand. it is 4 by 4 matrix becaue of homo. rep. for points
+    legNum = 4; % assign leg number.
+    T_BToW = body_configs; % assign the transformation matrix from body frame to world frame first
+    % assign the position vector between the body frame to the hip frames
+    % expressed in body frame.
+    P_bToh1 = [w;-l;0]; 
+    P_bToh2 = [-w;-l;0];
+    P_bToh3 = [-w;l;0];
+    P_bToh4 = [w;l;0];
+    % put them in a aggregated matrix for being easier to assign them in
+    % the transformation matrix from hip frame to body frame.
+    P_bTohi = [P_bToh1,P_bToh2,P_bToh3,P_bToh4]; 
+    for i = 1:legNum
+        T_HiToB = [I,P_bTohi(:,i);[0 0 0],1]; % transformation matrix from hip to body
+        % assign theta 1 and 2 for each of four legs.
+        theta1i = joint_angles(1,i);
+        theta2i = joint_angles(2,i);
+        % create the position vector from contact point to the hip joint
+        % expressed in hip frame {H}.
+        P_tiToHi = [0;l1*cos(theta1i)+l2*cos(theta1i+theta2i);l1*sin(theta1i)+l2*sin(theta1i+theta2i);1];
+        % Convert the vector P_tiToHi expressed in hip frame {H} to P_tiToB
+        % expressed in body frame {B}.
+        P_tiToB = T_HiToB * P_tiToHi;
+        % Convert P_tiToB expressed in {B} to P_tiToW expressed in world
+        % frame {W}, which are just the contact points we're looking for.
+        P_tiToW = T_BToW * P_tiToB;
+        % assign the contact point for each of four legs into contact_pt
+        % aggregated matrix.
+        contact_pts(:,i) = P_tiToW; 
+    end
+end
+
+
+##### SOURCE END #####
+--></body></html>

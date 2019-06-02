@@ -1,0 +1,192 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>getJointAngles</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-09"><meta name="DC.source" content="getJointAngles.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% P1 Q(c). A function that takes contact points and desired body configs as the input and output the required joint angles for four legs</span>
+
+<span class="keyword">function</span> [joint_angles,message] = getJointAngles(body_configs,body_consts,contact_pts)
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+<span class="comment">% contact_pts is a 4 by 4 matrix that consists of foot contact points</span>
+<span class="comment">% for each of four legs using homogenous representation.</span>
+<span class="comment">% body configs is a transformation matrix</span>
+<span class="comment">% body consts stores constants associated with the robot, such as</span>
+<span class="comment">% link length, body length and width. body_consts=[l1;l2;w;l];</span>
+w = body_consts(3); <span class="comment">% x-component distance from the hip to the body center.</span>
+l = body_consts(4); <span class="comment">% y-component distance from the hip to the body center.</span>
+l1 = body_consts(1); <span class="comment">% link length 1</span>
+l2 = body_consts(2); <span class="comment">% link length 2</span>
+I = eye(3);
+<span class="comment">% assign joint angles beforehand. it is 4 by 4 matrix. Each 2 rows has</span>
+<span class="comment">% one set of soln, there are 2 set of solns in total for each contact pts.</span>
+joint_angles = zeros(4,4);
+legNum = 4; <span class="comment">% assign leg number.</span>
+T_BToW = body_configs; <span class="comment">% assign body config to variable T_BtoW for clearance.</span>
+T_BToW_inv = getTransInv(T_BToW); <span class="comment">% get inverse transfromation matrix</span>
+<span class="comment">% assign the position vector between the body frame to the hip frames</span>
+<span class="comment">% expressed in body frame.</span>
+P_bToh1 = [w;-l;0];
+P_bToh2 = [-w;-l;0];
+P_bToh3 = [-w;l;0];
+P_bToh4 = [w;l;0];
+<span class="comment">% put them in a aggregated matrix for being easier to assign them in</span>
+<span class="comment">% the transformation matrix from hip frame to body frame.</span>
+P_bTohi = [P_bToh1,P_bToh2,P_bToh3,P_bToh4];
+counter = 0;
+message = <span class="string">"The leg with unaccessible points are: "</span>;
+<span class="keyword">for</span> i = 1:legNum
+    T_HiToB = [I,P_bTohi(:,i);[0 0 0],1]; <span class="comment">% transformation matrix from hip to body</span>
+    T_HiToB_inv = getTransInv(T_HiToB); <span class="comment">% get inverse of T_HiToB.</span>
+    P_tiToW = contact_pts(:,i); <span class="comment">% get position vector of contact pts expressed in world frame {W}</span>
+    P_tiToHi = T_HiToB_inv * T_BToW_inv * P_tiToW; <span class="comment">% get contact pts expressed in hip frame {H} for each leg</span>
+    y = P_tiToHi(2); <span class="comment">% get y-component of the contact pts in {H};</span>
+    z = P_tiToHi(3); <span class="comment">% get z-component of the contact pts in {H};</span>
+    <span class="comment">% input the y and z value of the point into RR_inverse_2D function.</span>
+    theta_i = RR_inverse_2D([l1;l2],[y;z]); <span class="comment">% get inverse solns</span>
+    <span class="keyword">if</span> isstring(theta_i) == 1 <span class="comment">% when it is a string,it means error occurs.</span>
+        joint_angles(:,i) = [NaN;NaN;NaN;NaN]; <span class="comment">% means unaccessible point</span>
+        counter = counter + 1; <span class="comment">% update unaccessible point counter.</span>
+        message = message + num2str(i) + <span class="string">" "</span>;
+    <span class="keyword">else</span> <span class="comment">% if it is not a string, assign theta.</span>
+        joint_angles(1:2,i) = theta_i(:,1); <span class="comment">% assign first set of soln for each leg.</span>
+        joint_angles(3:4,i) = theta_i(:,2); <span class="comment">% assign second set of soln for each leg.</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> counter == 0   <span class="comment">% if all the points are accessible.</span>
+        message = <span class="string">"All the points are accessible"</span>;
+    <span class="keyword">else</span>
+
+<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in getJointAngles (line 10)
+w = body_consts(3); % x-component distance from the hip to the body center.
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% P1 Q(c). A function that takes contact points and desired body configs as the input and output the required joint angles for four legs
+
+function [joint_angles,message] = getJointAngles(body_configs,body_consts,contact_pts)
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+% contact_pts is a 4 by 4 matrix that consists of foot contact points
+% for each of four legs using homogenous representation.
+% body configs is a transformation matrix
+% body consts stores constants associated with the robot, such as
+% link length, body length and width. body_consts=[l1;l2;w;l];
+w = body_consts(3); % x-component distance from the hip to the body center.
+l = body_consts(4); % y-component distance from the hip to the body center.
+l1 = body_consts(1); % link length 1
+l2 = body_consts(2); % link length 2
+I = eye(3);
+% assign joint angles beforehand. it is 4 by 4 matrix. Each 2 rows has
+% one set of soln, there are 2 set of solns in total for each contact pts.
+joint_angles = zeros(4,4);
+legNum = 4; % assign leg number.
+T_BToW = body_configs; % assign body config to variable T_BtoW for clearance.
+T_BToW_inv = getTransInv(T_BToW); % get inverse transfromation matrix
+% assign the position vector between the body frame to the hip frames
+% expressed in body frame.
+P_bToh1 = [w;-l;0];
+P_bToh2 = [-w;-l;0];
+P_bToh3 = [-w;l;0];
+P_bToh4 = [w;l;0];
+% put them in a aggregated matrix for being easier to assign them in
+% the transformation matrix from hip frame to body frame.
+P_bTohi = [P_bToh1,P_bToh2,P_bToh3,P_bToh4];
+counter = 0;
+message = "The leg with unaccessible points are: ";
+for i = 1:legNum
+    T_HiToB = [I,P_bTohi(:,i);[0 0 0],1]; % transformation matrix from hip to body
+    T_HiToB_inv = getTransInv(T_HiToB); % get inverse of T_HiToB.
+    P_tiToW = contact_pts(:,i); % get position vector of contact pts expressed in world frame {W}
+    P_tiToHi = T_HiToB_inv * T_BToW_inv * P_tiToW; % get contact pts expressed in hip frame {H} for each leg
+    y = P_tiToHi(2); % get y-component of the contact pts in {H};
+    z = P_tiToHi(3); % get z-component of the contact pts in {H};
+    % input the y and z value of the point into RR_inverse_2D function.
+    theta_i = RR_inverse_2D([l1;l2],[y;z]); % get inverse solns
+    if isstring(theta_i) == 1 % when it is a string,it means error occurs.
+        joint_angles(:,i) = [NaN;NaN;NaN;NaN]; % means unaccessible point
+        counter = counter + 1; % update unaccessible point counter.
+        message = message + num2str(i) + " ";
+    else % if it is not a string, assign theta.
+        joint_angles(1:2,i) = theta_i(:,1); % assign first set of soln for each leg.
+        joint_angles(3:4,i) = theta_i(:,2); % assign second set of soln for each leg.
+    end 
+end
+
+if counter == 0   % if all the points are accessible.
+        message = "All the points are accessible";
+    else 
+        
+end
+    
+end
+
+
+##### SOURCE END #####
+--></body></html>

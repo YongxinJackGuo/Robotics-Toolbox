@@ -1,0 +1,304 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ThreeFingerHand</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-09"><meta name="DC.source" content="ThreeFingerHand.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% MEC529 Matlab Midterm Problem 2 Question (d): grasp an ellipsoid. Codes Created by Yongxin Guo</span>
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">%--------------------------part 1: Question(b)----------------------------</span>
+<span class="comment">% assign variable</span>
+
+<span class="comment">% ellipsoid</span>
+a = 0.01;
+b = 0.03;
+c = 0.02;
+ellipsoid_para = [a;b;c];
+
+<span class="comment">% axis of rotation</span>
+w_1 = [1;0;0];
+w_2 = [1/sqrt(2);-1/sqrt(2);0];
+w_3 = [1/sqrt(2);1/sqrt(2);0];
+joint_axis = [w_1,w_1,w_2,w_2,w_2,w_3,w_3,w_3];
+
+<span class="comment">% base points</span>
+base_1 = [0;0;0];
+base_2 = [0.02;0.03;0.01];
+base_3 = [0;0.03;0];
+base_pts = [base_1,base_2,base_3];
+
+<span class="comment">% joint types</span>
+joint_types = [<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>];
+
+<span class="comment">% body constants.</span>
+L1_1 = 0.05;
+L2_1 = 0.03;
+L1_2 = 0.03;
+L2_2 = 0.03;
+L3_2 = 0.02;
+L1_3 = 0.03;
+L2_3 = 0.03;
+L3_3 = 0.02;
+body_consts = [L1_1;L2_1;L1_2;L2_2;L3_2;L1_3;L2_3;L3_3];
+
+<span class="comment">% q points.</span>
+q1_1 = [0;0;0];
+q2_1 = [0;0;L1_1];
+q1_2 = [0.02;0.03;0.01];
+q2_2 = [0.02;0.03;0.01+L1_2];
+q3_2 = [0.02;0.03;0.01+L1_2+L2_2];
+q1_3 = [0;0.03;0];
+q2_3 = [0;0.03;L1_3];
+q3_3 = [0;0.03;L1_3+L2_3];
+q_joint = [q1_1,q2_1,q1_2,q2_2,q3_2,q1_3,q2_3,q3_3];
+
+
+<span class="comment">% body configurations</span>
+I = eye(3);
+P = [0.01;0.015;0.06];
+T = [I,P;[0 0 0],1];
+
+<span class="comment">% joint_angles</span>
+theta1_1 = pi/3;
+theta2_1 = pi/4;
+theta1_2 = pi/5;
+theta2_2 = pi/4;
+theta3_2 = pi/8;
+theta1_3 = pi/4.5;
+theta2_3 = pi/6.4;
+theta3_3 = pi/5.7;
+theta = [theta1_1;theta2_1;theta1_2;theta2_2;theta3_2;theta1_3;theta2_3;theta3_3];
+
+<span class="comment">% get contact points expressed in {O} and {P} along with information about</span>
+<span class="comment">% contacting.</span>
+[contact_pts_O, contact_pts_P,msg] = getFingerContactPt(theta,joint_axis,q_joint,joint_types,T,body_consts,base_pts,ellipsoid_para);
+disp(<span class="string">"--------------------------part 1: Question(b)----------------------------"</span>);
+disp(contact_pts_P);
+disp(contact_pts_O);
+disp(msg);
+
+
+<span class="comment">%--------------------------part 2: Question(c)----------------------------</span>
+
+<span class="comment">% rpy for three finger frame {Fi}</span>
+rpy_1 = [0;0;0];
+rpy_2 = [0;0;-45*pi/180];
+rpy_3 = [0;0;45*pi/180];
+rpy = [rpy_1,rpy_2,rpy_3];
+
+phi_2 = pi;<span class="comment">%theta1_2 + theta2_2 + theta3_2 + pi/2; % third input parameter of RRR planar manipulator in addition to y and z.</span>
+phi_3 = pi;<span class="comment">%theta1_3 + theta2_3 + theta3_3 + pi/2; % third input parameter of RRR planar manipulator in addition to y and z.</span>
+RRR_phi = [phi_2;phi_3];
+
+
+[joint_angles_1,joint_angles_2,joint_angles_3] = getFingerAngles(contact_pts_O,T,base_pts,rpy,body_consts,RRR_phi);
+disp(<span class="string">"--------------------------part 2: Question(c)----------------------------"</span>);
+disp(<span class="string">"The required joint angles for thumb (Finger 1)"</span>);
+disp(joint_angles_1);
+disp(<span class="string">"The required joint angles for F1 (Finger 2)"</span>);
+disp(joint_angles_2);
+disp(<span class="string">"The required joint angles for F2 (Finger 3)"</span>);
+disp(joint_angles_3);
+</pre><pre class="codeoutput">--------------------------part 1: Question(b)----------------------------
+         0   -0.0272    0.0473
+   -0.0723   -0.0172   -0.0173
+    0.0172    0.0343    0.0308
+
+   -0.0100   -0.0372    0.0373
+   -0.0873   -0.0322   -0.0323
+   -0.0428   -0.0257   -0.0292
+
+Thumb (finger 1): No Contact!
+F1 (finger 2): No Contact!
+F2 (finger 3): No Contact!
+
+--------------------------part 2: Question(c)----------------------------
+The required joint angles for thumb (Finger 1)
+    1.0472    1.6262
+    0.7854   -0.7854
+
+The required joint angles for F1 (Finger 2)
+    0.5911    1.5913
+    1.0002   -1.0002
+   -0.0205    0.9797
+
+The required joint angles for F2 (Finger 3)
+    0.6244    1.3542
+    0.7297   -0.7297
+    0.2166    0.9464
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MEC529 Matlab Midterm Problem 2 Question (d): grasp an ellipsoid. Codes Created by Yongxin Guo
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+
+close all
+clear
+clc
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHpart 1: Question(b)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+% assign variable
+
+% ellipsoid
+a = 0.01;
+b = 0.03;
+c = 0.02;
+ellipsoid_para = [a;b;c];
+
+% axis of rotation
+w_1 = [1;0;0];
+w_2 = [1/sqrt(2);-1/sqrt(2);0];
+w_3 = [1/sqrt(2);1/sqrt(2);0];
+joint_axis = [w_1,w_1,w_2,w_2,w_2,w_3,w_3,w_3];
+
+% base points
+base_1 = [0;0;0];
+base_2 = [0.02;0.03;0.01];
+base_3 = [0;0.03;0];
+base_pts = [base_1,base_2,base_3];
+
+% joint types
+joint_types = ["R";"R";"R";"R";"R";"R";"R";"R"];
+
+% body constants.
+L1_1 = 0.05;
+L2_1 = 0.03;
+L1_2 = 0.03;
+L2_2 = 0.03;
+L3_2 = 0.02;
+L1_3 = 0.03;
+L2_3 = 0.03;
+L3_3 = 0.02;
+body_consts = [L1_1;L2_1;L1_2;L2_2;L3_2;L1_3;L2_3;L3_3];
+
+% q points.
+q1_1 = [0;0;0];
+q2_1 = [0;0;L1_1];
+q1_2 = [0.02;0.03;0.01];
+q2_2 = [0.02;0.03;0.01+L1_2];
+q3_2 = [0.02;0.03;0.01+L1_2+L2_2];
+q1_3 = [0;0.03;0];
+q2_3 = [0;0.03;L1_3];
+q3_3 = [0;0.03;L1_3+L2_3];
+q_joint = [q1_1,q2_1,q1_2,q2_2,q3_2,q1_3,q2_3,q3_3];
+
+
+% body configurations
+I = eye(3);
+P = [0.01;0.015;0.06];
+T = [I,P;[0 0 0],1];
+
+% joint_angles
+theta1_1 = pi/3;
+theta2_1 = pi/4;
+theta1_2 = pi/5;
+theta2_2 = pi/4;
+theta3_2 = pi/8;
+theta1_3 = pi/4.5;
+theta2_3 = pi/6.4;
+theta3_3 = pi/5.7;
+theta = [theta1_1;theta2_1;theta1_2;theta2_2;theta3_2;theta1_3;theta2_3;theta3_3];
+
+% get contact points expressed in {O} and {P} along with information about
+% contacting.
+[contact_pts_O, contact_pts_P,msg] = getFingerContactPt(theta,joint_axis,q_joint,joint_types,T,body_consts,base_pts,ellipsoid_para);
+disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHpart 1: Question(b)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH");
+disp(contact_pts_P);
+disp(contact_pts_O);
+disp(msg);
+
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHpart 2: Question(c)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% rpy for three finger frame {Fi}
+rpy_1 = [0;0;0];
+rpy_2 = [0;0;-45*pi/180];
+rpy_3 = [0;0;45*pi/180];
+rpy = [rpy_1,rpy_2,rpy_3];
+
+phi_2 = pi;%theta1_2 + theta2_2 + theta3_2 + pi/2; % third input parameter of RRR planar manipulator in addition to y and z.
+phi_3 = pi;%theta1_3 + theta2_3 + theta3_3 + pi/2; % third input parameter of RRR planar manipulator in addition to y and z.
+RRR_phi = [phi_2;phi_3];
+
+
+[joint_angles_1,joint_angles_2,joint_angles_3] = getFingerAngles(contact_pts_O,T,base_pts,rpy,body_consts,RRR_phi);
+disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHpart 2: Question(c)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH");
+disp("The required joint angles for thumb (Finger 1)");
+disp(joint_angles_1);
+disp("The required joint angles for F1 (Finger 2)");
+disp(joint_angles_2);
+disp("The required joint angles for F2 (Finger 3)");
+disp(joint_angles_3);
+
+
+
+
+##### SOURCE END #####
+--></body></html>

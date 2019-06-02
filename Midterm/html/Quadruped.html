@@ -1,0 +1,250 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Quadruped</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-09"><meta name="DC.source" content="Quadruped.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% MEC529 Midterm Problem 1 Question (c), Created by Yongxin Guo</span>
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">%-------------------------part 1------------------------------------</span>
+disp(<span class="string">"**************************Part 1*********************************"</span>)
+<span class="comment">% Given contact points and body configs, and output the joint angles. which</span>
+<span class="comment">% is for verification of question (b).</span>
+<span class="comment">% Contact pts expressed in homogenous representation.</span>
+ct_pt1 = [2;     1;    0;    1];
+ct_pt2 = [1.4;   1;    0;    1];
+ct_pt3 = [1.4;   2;    0;    1];
+ct_pt4 = [2;     1.8;  0.4;  1]; <span class="comment">% lift in the air</span>
+contact_pts = [ct_pt1,ct_pt2,ct_pt3,ct_pt4];
+legNum = 4;
+<span class="comment">% body constants</span>
+l1 = 0.2;
+l2 = 0.25;
+w = 0.3;
+l = 0.5;
+body_consts = [l1;l2;w;l];
+
+<span class="comment">% body rotate around x-axis, roll angle = 10 degrees</span>
+roll = 10*(pi/180); <span class="comment">% convert it to radian</span>
+pitch = 0;
+yaw = 0;
+rpy = [roll;pitch;yaw];
+Rot = RPY_to_Rot(rpy);
+<span class="comment">% body position</span>
+P = [1.7;1.5;0.35];
+<span class="comment">% body configuration;</span>
+config = [Rot,P;[0 0 0],1];
+
+<span class="comment">% Get joint angles</span>
+[jointAngles,msg] = getJointAngles(config,body_consts,contact_pts);
+disp(newline + <span class="string">"The required joint angles for four legs are (row-&gt;2 joint angles, column-&gt;4 legs): "</span>);
+disp(newline + <span class="string">"1st solution set are:"</span>)
+disp(jointAngles(1:2,:));
+disp(<span class="string">"2nd solution set are: "</span>);
+disp(jointAngles(3:4,:));
+disp(msg + newline);
+
+<span class="comment">%-------------------------part 2------------------------------------</span>
+disp(<span class="string">"**************************Part 2*********************************"</span>);
+<span class="comment">% given joint angles and body configurations, and output the contact</span>
+<span class="comment">% points. Which is for verification of question (a), and we can directly</span>
+<span class="comment">% use the joint angles output from part 1 as the given variables.</span>
+<span class="comment">% Then we can compare out contact pts output with the given contact pts in</span>
+<span class="comment">% part 1 to see if they are identical.</span>
+
+<span class="comment">% choose the first set of soln from previous joint angle output as the</span>
+<span class="comment">% given.</span>
+joint_given = jointAngles(1:2,:);
+contact_pts_output = getContactPt(joint_given,config,body_consts);
+<span class="keyword">for</span> i = 1:legNum
+    disp(newline + <span class="string">"Leg "</span> + num2str(i) + <span class="string">" contact points: "</span>);
+    disp(contact_pts_output(1:3,i)); <span class="comment">% drop out the homogenous representation.</span>
+<span class="keyword">end</span>
+
+diff = abs(contact_pts_output - contact_pts); <span class="comment">% compute the difference with the contact points from part 1.</span>
+criterion = 1e-10; <span class="comment">% set a criterion for comparison.</span>
+<span class="keyword">if</span> norm(diff) &lt;= criterion
+    disp(newline+ <span class="string">"Conclusion: the result is consistent! The contact points are valid!"</span>)
+<span class="keyword">else</span>
+    disp(newline + <span class="string">"Large difference exists in the verification process. The contact points may not be valid!"</span>)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">**************************Part 1*********************************
+
+The required joint angles for four legs are (row-&gt;2 joint angles, column-&gt;4 legs): 
+
+1st solution set are:
+   -2.8843   -2.8843   -1.9991   -4.4938
+    1.9090    1.9090    0.4870    2.2669
+
+2nd solution set are: 
+   -0.6641   -0.6641   -1.4568   -1.7602
+   -1.9090   -1.9090   -0.4870   -2.2669
+
+All the points are accessible
+
+**************************Part 2*********************************
+
+Leg 1 contact points: 
+    2.0000
+    1.0000
+    0.0000
+
+
+Leg 2 contact points: 
+    1.4000
+    1.0000
+    0.0000
+
+
+Leg 3 contact points: 
+    1.4000
+    2.0000
+    0.0000
+
+
+Leg 4 contact points: 
+    2.0000
+    1.8000
+    0.4000
+
+
+Conclusion: the result is consistent! The contact points are valid!
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MEC529 Midterm Problem 1 Question (c), Created by Yongxin Guo
+close all
+clear
+clc
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-part 1REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+disp("**************************Part 1*********************************")
+% Given contact points and body configs, and output the joint angles. which
+% is for verification of question (b).
+% Contact pts expressed in homogenous representation.
+ct_pt1 = [2;     1;    0;    1];
+ct_pt2 = [1.4;   1;    0;    1];
+ct_pt3 = [1.4;   2;    0;    1];
+ct_pt4 = [2;     1.8;  0.4;  1]; % lift in the air
+contact_pts = [ct_pt1,ct_pt2,ct_pt3,ct_pt4];
+legNum = 4;
+% body constants
+l1 = 0.2;
+l2 = 0.25;
+w = 0.3;
+l = 0.5;
+body_consts = [l1;l2;w;l];
+
+% body rotate around x-axis, roll angle = 10 degrees
+roll = 10*(pi/180); % convert it to radian
+pitch = 0;
+yaw = 0;
+rpy = [roll;pitch;yaw];
+Rot = RPY_to_Rot(rpy);
+% body position
+P = [1.7;1.5;0.35];
+% body configuration;
+config = [Rot,P;[0 0 0],1];
+
+% Get joint angles
+[jointAngles,msg] = getJointAngles(config,body_consts,contact_pts);
+disp(newline + "The required joint angles for four legs are (row->2 joint angles, column->4 legs): ");
+disp(newline + "1st solution set are:")
+disp(jointAngles(1:2,:));
+disp("2nd solution set are: ");
+disp(jointAngles(3:4,:));
+disp(msg + newline);
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-part 2REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+disp("**************************Part 2*********************************");
+% given joint angles and body configurations, and output the contact
+% points. Which is for verification of question (a), and we can directly
+% use the joint angles output from part 1 as the given variables.
+% Then we can compare out contact pts output with the given contact pts in
+% part 1 to see if they are identical.
+
+% choose the first set of soln from previous joint angle output as the
+% given.
+joint_given = jointAngles(1:2,:);
+contact_pts_output = getContactPt(joint_given,config,body_consts);
+for i = 1:legNum
+    disp(newline + "Leg " + num2str(i) + " contact points: ");
+    disp(contact_pts_output(1:3,i)); % drop out the homogenous representation.
+end
+
+diff = abs(contact_pts_output - contact_pts); % compute the difference with the contact points from part 1.
+criterion = 1e-10; % set a criterion for comparison.
+if norm(diff) <= criterion
+    disp(newline+ "Conclusion: the result is consistent! The contact points are valid!")
+else
+    disp(newline + "Large difference exists in the verification process. The contact points may not be valid!")
+end
+
+
+
+##### SOURCE END #####
+--></body></html>
