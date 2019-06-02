@@ -1,0 +1,275 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>VelocityOfEndEffector</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-15"><meta name="DC.source" content="VelocityOfEndEffector.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% MEC529 Matlab Homework 4 Problem 2.4.a Codes Created by Yongxin Guo</span>
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+
+close <span class="string">all</span>
+clear
+clc
+
+l0 = 1;
+l1 = 1;
+l2 = 0.5;
+TtoP = 0.06;
+thetai = pi/3;
+thetaidot = 1;
+
+<span class="comment">% each axis of joints.</span>
+w1 = [0;0;1];
+w2 = [-1;0;0];
+w3 = [-1;0;0];
+w4 = [0;0;1];
+w5 = [-1;0;0];
+w6 = [0;1;0];
+axis_joints = [w1,w2,w3,w4,w5,w6];
+<span class="comment">% each q vecotr of joints.</span>
+q1 = [0;0;l0];
+q2 = q1;
+q3 = [0;l1;l0];
+q4 = [0;l1+l2;l0];
+q5 = q4;
+q6 = q4;
+q_joints = [q1,q2,q3,q4,q5,q6];
+<span class="comment">% eacht type of joints</span>
+type_joints = [<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>];
+<span class="comment">% each displacement and rates of joints</span>
+theta = thetai*ones(6,1);
+thetadot = [thetaidot;thetaidot;thetaidot;thetaidot;thetaidot;thetaidot];
+<span class="comment">% base transformation matrix</span>
+gst0 = [eye(3),[0;l1+l2+TtoP;l0];[0 0 0],1];
+<span class="comment">% Compute gst(theta).</span>
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+<span class="comment">% Compute spatial jacobian</span>
+Js = SpatialmanipJac(axis_joints, q_joints, type_joints,theta);
+<span class="comment">% Compute spatial velocity twist</span>
+Vs = SpatialVelTwist(Js,thetadot);
+ws = Vs(4:6); <span class="comment">% extract spatial angular velocity of the end-effector</span>
+vs = Vs(1:3); <span class="comment">% extract spatial linear velocity of the end-effector</span>
+<span class="comment">% Compute body jacobian</span>
+Jb = BodymanipJac(Js, gst0, axis_joints, q_joints, type_joints, theta);
+<span class="comment">% Compute body velocity twist</span>
+Vb = BodyVelTwist(Jb,thetadot);
+vb = Vb(1:3);
+wb = Vb(4:6);
+<span class="comment">% Note that the vs component inside Vs vector is the velocity of an</span>
+<span class="comment">% instantanous point attached to the tool frame passing through the origin</span>
+<span class="comment">% of the world frame. In order to calculate the velocity of the origin of</span>
+<span class="comment">% the tool frame expressed in spatial frame, which is question (b), we have</span>
+<span class="comment">% to use equation (5.14).</span>
+ws_hat = [0 -ws(3) ws(2);ws(3) 0 -ws(1);-ws(2) ws(1) 0]; <span class="comment">% ws_hat matrix</span>
+Vs_hat = [ws_hat vs; 0 0 0 0]; <span class="comment">% Construct Vs_hat twist.</span>
+p = gst_theta(1:3,4); <span class="comment">% extract the position vector at "theta moment".</span>
+<span class="comment">% Compute the spatial linear velocity of origin of the tool frame</span>
+Vts = Vs_hat*[p;1];
+vts = Vts(1:3);
+wts = ws; <span class="comment">% The spatial angular velocity of any point attached to the tool frame is the same.</span>
+
+
+<span class="comment">% display results</span>
+disp(<span class="string">"Question (a). Spatial quantities: "</span>);
+disp(<span class="string">"Linear velocity of end-effector: "</span>);
+disp(vs);
+disp(<span class="string">"Angular velocity of end-effector: "</span>);
+disp(ws);
+disp(<span class="string">"--------------------------------------------------"</span>);
+disp(<span class="string">"Question (a). Body quantities"</span>);
+disp(<span class="string">"Linear velocity of end-effector: "</span>);
+disp(vb);
+disp(<span class="string">"Angular velocity of end-effector: "</span>);
+disp(wb);
+disp(<span class="string">"--------------------------------------------------"</span>);
+disp(<span class="string">"Question (b). Spatial quantities: "</span>);
+disp(<span class="string">"Linear velocity of the origin of the tool frame: "</span>);
+disp(vts);
+disp(<span class="string">"Angular velocity of the origin of the tool frame: "</span>);
+disp(wts);
+</pre><pre class="codeoutput">Question (a). Spatial quantities: 
+Linear velocity of end-effector: 
+    0.8621
+   -0.2167
+    0.7333
+
+Angular velocity of end-effector: 
+   -1.8337
+   -2.3280
+    1.4665
+
+--------------------------------------------------
+Question (a). Body quantities
+Linear velocity of end-effector: 
+    0.5765
+    1.6238
+    0.2936
+
+Angular velocity of end-effector: 
+   -2.5658
+    1.2165
+   -1.6941
+
+--------------------------------------------------
+Question (b). Spatial quantities: 
+Linear velocity of the origin of the tool frame: 
+    1.4163
+   -1.0111
+    0.1650
+
+Angular velocity of the origin of the tool frame: 
+   -1.8337
+   -2.3280
+    1.4665
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MEC529 Matlab Homework 4 Problem 2.4.a Codes Created by Yongxin Guo
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+
+close all
+clear
+clc
+
+l0 = 1;
+l1 = 1;
+l2 = 0.5;
+TtoP = 0.06;
+thetai = pi/3;
+thetaidot = 1;
+
+% each axis of joints.
+w1 = [0;0;1];
+w2 = [-1;0;0];
+w3 = [-1;0;0];
+w4 = [0;0;1];
+w5 = [-1;0;0];
+w6 = [0;1;0];
+axis_joints = [w1,w2,w3,w4,w5,w6];
+% each q vecotr of joints.
+q1 = [0;0;l0];
+q2 = q1;
+q3 = [0;l1;l0];
+q4 = [0;l1+l2;l0];
+q5 = q4;
+q6 = q4;
+q_joints = [q1,q2,q3,q4,q5,q6];
+% eacht type of joints
+type_joints = ["R";"R";"R";"R";"R";"R"];
+% each displacement and rates of joints
+theta = thetai*ones(6,1);
+thetadot = [thetaidot;thetaidot;thetaidot;thetaidot;thetaidot;thetaidot];
+% base transformation matrix
+gst0 = [eye(3),[0;l1+l2+TtoP;l0];[0 0 0],1];
+% Compute gst(theta).
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+% Compute spatial jacobian
+Js = SpatialmanipJac(axis_joints, q_joints, type_joints,theta);
+% Compute spatial velocity twist
+Vs = SpatialVelTwist(Js,thetadot);
+ws = Vs(4:6); % extract spatial angular velocity of the end-effector
+vs = Vs(1:3); % extract spatial linear velocity of the end-effector
+% Compute body jacobian
+Jb = BodymanipJac(Js, gst0, axis_joints, q_joints, type_joints, theta);
+% Compute body velocity twist
+Vb = BodyVelTwist(Jb,thetadot);
+vb = Vb(1:3);
+wb = Vb(4:6);
+% Note that the vs component inside Vs vector is the velocity of an
+% instantanous point attached to the tool frame passing through the origin
+% of the world frame. In order to calculate the velocity of the origin of
+% the tool frame expressed in spatial frame, which is question (b), we have
+% to use equation (5.14).
+ws_hat = [0 -ws(3) ws(2);ws(3) 0 -ws(1);-ws(2) ws(1) 0]; % ws_hat matrix
+Vs_hat = [ws_hat vs; 0 0 0 0]; % Construct Vs_hat twist.
+p = gst_theta(1:3,4); % extract the position vector at "theta moment".
+% Compute the spatial linear velocity of origin of the tool frame
+Vts = Vs_hat*[p;1];
+vts = Vts(1:3);
+wts = ws; % The spatial angular velocity of any point attached to the tool frame is the same.
+
+
+% display results
+disp("Question (a). Spatial quantities: ");
+disp("Linear velocity of end-effector: ");
+disp(vs);
+disp("Angular velocity of end-effector: ");
+disp(ws);
+disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH");
+disp("Question (a). Body quantities");
+disp("Linear velocity of end-effector: ");
+disp(vb);
+disp("Angular velocity of end-effector: ");
+disp(wb);
+disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH");
+disp("Question (b). Spatial quantities: ");
+disp("Linear velocity of the origin of the tool frame: ");
+disp(vts);
+disp("Angular velocity of the origin of the tool frame: ");
+disp(wts);
+
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0113)file:///Users/guoyongxin/Desktop/Assignment:Academics/Senior_Second%20semester/MEC529/HW1/html/MEC529_HW1_P1.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>MEC529_HW1_P1</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-02-05"><meta name="DC.source" content="MEC529_HW1_P1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">% Test for function one</span>
+<span class="comment">% l = [2;4];</span>
+<span class="comment">% conf = [pi/4;pi/3];</span>
+<span class="comment">% pos_end = RR_direct_2D(l,conf);</span>
+l = [0.6;0.4];
+endPoint = [0;0.7];
+result = RR_inverse_2D(l,endPoint);
+<span class="keyword">if</span> (isstring(result) == 1) <span class="comment">%check if the returned result is string. if it is string, the error has occured.</span>
+    disp(result);  <span class="comment">%display the error message</span>
+<span class="keyword">else</span>
+    startPoint = [0;0];
+
+    midPointXSoln1 = l(1)*cos(result(1,1));
+    midPointYSoln1 = l(1)*sin(result(1,1));
+    midPointSoln1 = [midPointXSoln1;midPointYSoln1];
+
+    midPointXSoln2 = l(1)*cos(result(1,2));
+    midPointYSoln2 = l(1)*sin(result(1,2));
+    midPointSoln2 = [midPointXSoln2;midPointYSoln2];
+    plotLinks(startPoint,midPointSoln1,endPoint);
+    hold <span class="string">on</span>;
+    plotLinks(startPoint,midPointSoln2,endPoint);
+<span class="keyword">end</span>
+
+
+<span class="keyword">function</span> pos_end = RR_direct_2D(Link_Lengths,config)   <span class="comment">%output position of end-effector (column vector) by inputting angles and link lengths</span>
+pos_end(1) = Link_Lengths(1)*cos(config(1))+Link_Lengths(2)*cos(config(1)+config(2));  <span class="comment">% x-component</span>
+pos_end(2) = Link_Lengths(1)*sin(config(1))+Link_Lengths(2)*sin(config(1)+config(2));  <span class="comment">% y-component</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> config = RR_inverse_2D(Link_Lengths,pos_end)  <span class="comment">%output angles (2 by 2 matrix, each column vector for each of the two solns) by inputting posistion of end-effector and link lengths</span>
+cosTheta2 = (pos_end(1)^2+pos_end(2)^2-Link_Lengths(1)^2-Link_Lengths(2)^2)/(2*Link_Lengths(1)*Link_Lengths(2)); <span class="comment">%first equation for theta2</span>
+<span class="keyword">if</span> (cosTheta2 &gt;= -1)&amp;&amp;(cosTheta2 &lt;= 1)  <span class="comment">%check if the point is accessible.</span>
+    sinTheta2 = sqrt(1-cosTheta2^2); <span class="comment">%second equation for theta2</span>
+
+    config(2,1) = atan2(sinTheta2,cosTheta2);  <span class="comment">%calculate theta2 for the first soln.</span>
+    config(1,1) = atan2(pos_end(2),pos_end(1)) - atan2(Link_Lengths(2)*sinTheta2,Link_Lengths(1)+Link_Lengths(2)*cosTheta2); <span class="comment">%calculate theta1 for the first soln.</span>
+    config(2,2) = atan2(-1*sinTheta2,cosTheta2); <span class="comment">%theta2 for second soln.</span>
+    config(1,2) = atan2(pos_end(2),pos_end(1)) - atan2(Link_Lengths(2)*-1*sinTheta2,Link_Lengths(1)+Link_Lengths(2)*cosTheta2); <span class="comment">%calculate theta1 for the first soln.</span>
+<span class="keyword">else</span>
+    config = <span class="string">"The point is not accessible"</span>; <span class="comment">%retunr the error message.</span>
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> graph = plotLinks(startP,midP,endP)
+sumP = [startP,midP,endP];  <span class="comment">%merge the three point into one 2 by 3 matrix</span>
+rowX = sumP(1,:);
+rowY = sumP(2,:);
+plot(rowX,rowY);   <span class="comment">%plot the graph</span>
+xlabel(<span class="string">"x-axis"</span>);
+ylabel(<span class="string">"y-axis"</span>);
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="./MEC529_HW1_P1_files/MEC529_HW1_P1_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB® R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+close all
+clear
+clc
+
+% Test for function one
+% l = [2;4];
+% conf = [pi/4;pi/3];
+% pos_end = RR_direct_2D(l,conf);
+l = [0.6;0.4];
+endPoint = [0;0.7];
+result = RR_inverse_2D(l,endPoint);
+if (isstring(result) == 1) %check if the returned result is string. if it is string, the error has occured.
+    disp(result);  %display the error message
+else
+    startPoint = [0;0];
+    
+    midPointXSoln1 = l(1)*cos(result(1,1));
+    midPointYSoln1 = l(1)*sin(result(1,1));
+    midPointSoln1 = [midPointXSoln1;midPointYSoln1];
+    
+    midPointXSoln2 = l(1)*cos(result(1,2));
+    midPointYSoln2 = l(1)*sin(result(1,2));
+    midPointSoln2 = [midPointXSoln2;midPointYSoln2];
+    plotLinks(startPoint,midPointSoln1,endPoint);
+    hold on;
+    plotLinks(startPoint,midPointSoln2,endPoint);
+end
+    
+
+function pos_end = RR_direct_2D(Link_Lengths,config)   %output position of end-effector (column vector) by inputting angles and link lengths
+pos_end(1) = Link_Lengths(1)*cos(config(1))+Link_Lengths(2)*cos(config(1)+config(2));  % x-component
+pos_end(2) = Link_Lengths(1)*sin(config(1))+Link_Lengths(2)*sin(config(1)+config(2));  % y-component
+end
+
+function config = RR_inverse_2D(Link_Lengths,pos_end)  %output angles (2 by 2 matrix, each column vector for each of the two solns) by inputting posistion of end-effector and link lengths
+cosTheta2 = (pos_end(1)^2+pos_end(2)^2-Link_Lengths(1)^2-Link_Lengths(2)^2)/(2*Link_Lengths(1)*Link_Lengths(2)); %first equation for theta2
+if (cosTheta2 >= -1)&&(cosTheta2 <= 1)  %check if the point is accessible.
+    sinTheta2 = sqrt(1-cosTheta2^2); %second equation for theta2
+    
+    config(2,1) = atan2(sinTheta2,cosTheta2);  %calculate theta2 for the first soln.
+    config(1,1) = atan2(pos_end(2),pos_end(1)) - atan2(Link_Lengths(2)*sinTheta2,Link_Lengths(1)+Link_Lengths(2)*cosTheta2); %calculate theta1 for the first soln.
+    config(2,2) = atan2(-1*sinTheta2,cosTheta2); %theta2 for second soln.
+    config(1,2) = atan2(pos_end(2),pos_end(1)) - atan2(Link_Lengths(2)*-1*sinTheta2,Link_Lengths(1)+Link_Lengths(2)*cosTheta2); %calculate theta1 for the first soln.
+else
+    config = "The point is not accessible"; %retunr the error message.
+end
+end
+
+function graph = plotLinks(startP,midP,endP)
+sumP = [startP,midP,endP];  %merge the three point into one 2 by 3 matrix
+rowX = sumP(1,:);
+rowY = sumP(2,:);
+plot(rowX,rowY);   %plot the graph
+xlabel("x-axis");
+ylabel("y-axis");
+end
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,628 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>elbowIK</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-31"><meta name="DC.source" content="elbowIK.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% MEC529 Matlab Homework 5 Problem 5, IK for elbow manipulator Codes Created by Yongxin Guo</span>
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+<span class="comment">% Codes summary:</span>
+<span class="comment">% assign the given joint angles for computing the given gst transformation</span>
+<span class="comment">% matrix via forward kinematics algorithms. The given gst matrix was fed into the IK algorithm codes for</span>
+<span class="comment">% computing the joint angles and we can be able to compare one of the</span>
+<span class="comment">% solutions we got with the given joint angles at the beginning, and the</span>
+<span class="comment">% rest of the solutions will be passed into the forward kinematics algorithms to see if we can get back</span>
+<span class="comment">% the original gst matrix. The above will be the verification process for</span>
+<span class="comment">% the IK algorithm codes.</span>
+<span class="comment">% create gst0 matrix.</span>
+
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">% assign configuration constants.</span>
+l0 = 0.8;
+l1 = 0.8;
+l2 = 0.5;
+theta = (pi/3)*ones(6,1);
+R0 = eye(3);
+P0 = [0;l1+l2;l0];
+gst0 = [R0,P0;[0 0 0],1];
+<span class="comment">% create axis of motion.</span>
+axis1 = [0;0;1];
+axis2 = [-1;0;0];
+axis3 = [-1;0;0];
+axis4 = [0;0;1];
+axis5 = [-1;0;0];
+axis6 = [0;1;0];
+axis_joints = [axis1,axis2,axis3,axis4,axis5,axis6];
+<span class="comment">% create q_matrix.</span>
+q1 = [0;0;l0];
+q2 = q1;
+q3 = [0;l1;l0]; <span class="comment">% q3 here is q2 in the homework figure.</span>
+q4 = [0;l1+l2;l0];
+q5 = q4;
+q6 = q4; <span class="comment">% q4 here is q3 in the homework figure.</span>
+q_joints = [q1,q2,q3,q4,q5,q6];
+<span class="comment">% create matrix for the type of joints</span>
+type_joints = [<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>];
+<span class="comment">% compute gst(theta)</span>
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+disp(<span class="string">"The given gst(theta) transformation matrix is shown below: "</span>);
+disp(gst_theta); <span class="comment">% this will be the given gst matrix for our IK codes.</span>
+
+
+<span class="comment">%*****************************IK algorithms code**************************</span>
+<span class="comment">% gst_theta and gst0 are given transformation matrices, gst_theta will be used for future</span>
+<span class="comment">% verification!</span>
+pt_p = q4; <span class="comment">% select a point at the intersecting of axis 4,5 and 6.</span>
+pt_q = q1; <span class="comment">% select a point along axis 1 and 2.</span>
+pt_p_prime = pt_q; <span class="comment">% same as point q.</span>
+pt_p_doublePrime = [0;0;0]; <span class="comment">% select a point that is not along axis 6, which can be the origin.</span>
+pt_r1 = q3; <span class="comment">% for theta3.</span>
+pt_r2 = q1; <span class="comment">% for theta1 and 2.</span>
+pt_r3 = q4; <span class="comment">% for theta4 and 5.</span>
+pt_r4 = q4; <span class="comment">% for theta6.</span>
+<span class="comment">%-------------------------get theta3-----------------------------</span>
+<span class="comment">% calculate gst*g(0)^-1, which is g.</span>
+R0t = transpose(R0);
+gst0_inv = [R0t, -1*R0t*P0; [0 0 0], 1];
+g = gst_theta*gst0_inv;
+delta = g*[pt_p;1]-[pt_q;1];
+delta_mag = sqrt(transpose(delta)*delta);
+<span class="comment">% use SP3.</span>
+theta3 = PadenKahanSP3(axis3, pt_p, pt_q, pt_r1, delta_mag);
+<span class="comment">% There will be 2 possible solns for theta3.</span>
+sz = length(theta3); <span class="comment">% get the number of possible theta3 solns.</span>
+<span class="comment">% allocating the size for theta first.</span>
+theta1 = zeros(sz,1);
+theta2 = theta1;
+theta4 = theta1;
+theta5 = theta1;
+theta6 = theta1;
+<span class="comment">% declare 3 by 3 indentity matrix for future use.</span>
+I = eye(3);
+counter = 0; <span class="comment">% initialize a counter for counting the total soln number</span>
+dof = 6; <span class="comment">% the d.o.f for the elbow manipulator.</span>
+<span class="keyword">for</span> i = 1:sz
+    R3 = AxisAngle_to_Rot(axis3,theta3(i));
+    P3 = (eye(3)-R3)*q3;
+    <span class="comment">%--------------------get theta1 and theta2 (SP2)-------------------</span>
+    temp_pt = [R3,P3;[0 0 0],1]*[pt_p;1];
+    gp = g*[pt_p;1];
+    <span class="comment">% use SP2</span>
+    theta1and2 = PadenKahanSP2(axis1,axis2,temp_pt(1:3),gp(1:3),pt_r2);
+    sz1 = length(theta1and2); <span class="comment">% get the length of theta1and2. number of solns.</span>
+    <span class="keyword">for</span> j = 1:sz1
+        theta1(j) = theta1and2(1,j);
+        theta2(j) = theta1and2(2,j);
+
+        <span class="comment">%--------------------get theta4 and theta5 (SP2)-------------------</span>
+        <span class="comment">% compute gst_theta1_inv.</span>
+        R1 = AxisAngle_to_Rot(axis1,theta1(j));
+        R1t = transpose(R1);
+        P1 = (I-R1)*q1;
+        gst_theta1_inv = [R1t,-1*R1t*P1; [0 0 0], 1];
+        <span class="comment">% compute gst_theta2_inv.</span>
+        R2 = AxisAngle_to_Rot(axis2,theta2(j));
+        R2t = transpose(R2);
+        P2 = (I-R2)*q2;
+        gst_theta2_inv = [R2t,-1*R2t*P2; [0 0 0], 1];
+        <span class="comment">% compute gst_theta3_inv.</span>
+        R3t = transpose(R3);
+        P3 = (I-R3)*q3;
+        gst_theta3_inv = [R3t,-1*R3t*P3; [0 0 0], 1];
+        <span class="comment">% multiplying together</span>
+        gst_theta321_inv = gst_theta3_inv*gst_theta2_inv*gst_theta1_inv;
+        <span class="comment">% compute point q_prime.</span>
+        pt_q_prime = gst_theta321_inv*g*[pt_p_prime;1];
+        <span class="comment">% use SP2</span>
+        theta4and5 = PadenKahanSP2(axis4,axis5,pt_p_prime,pt_q_prime(1:3),pt_r3);
+        sz2 = length(theta4and5); <span class="comment">% get the length of theta4and5.</span>
+        <span class="keyword">for</span> k = 1:sz2
+            counter = counter + 1; <span class="comment">% update the counter by 1.</span>
+            theta4(k) = theta4and5(1,k);
+            theta5(k) = theta4and5(2,k);
+            <span class="comment">%--------------------get theta6-------------------</span>
+            <span class="comment">% compute gst_theta5_inv.</span>
+            R5 = AxisAngle_to_Rot(axis5,theta5(k));
+            R5t = transpose(R5);
+            P5 = (I-R5)*q5;
+            gst_theta5_inv = [R5t,-1*R5t*P5; [0 0 0], 1];
+            <span class="comment">% compute gst_theta4_inv.</span>
+            R4 = AxisAngle_to_Rot(axis4,theta4(k));
+            R4t = transpose(R4);
+            P4 = (I-R4)*q4;
+            gst_theta4_inv = [R4t,-1*R4t*P4; [0 0 0], 1];
+            <span class="comment">% multiplying together</span>
+            gst_theta54_inv = gst_theta5_inv*gst_theta4_inv;
+            <span class="comment">% get gst_theta54321_inv</span>
+            gst_theta54321_inv = gst_theta54_inv*gst_theta321_inv;
+            <span class="comment">% compute point q_doublePrime</span>
+            pt_q_doublePrime = gst_theta54321_inv*g*[pt_p_doublePrime;1];
+            <span class="comment">% use SP1</span>
+            theta6 = PadenKahanSP1(axis6,pt_p_doublePrime,pt_q_doublePrime(1:3),pt_r4);
+            <span class="comment">%-------------------Assign all the theta solns-------</span>
+            theta_temp = [theta1(j);theta2(j);theta3(i);theta4(k);theta5(k);theta6];
+            <span class="keyword">for</span> l = 1:dof
+                theta_IK(l,counter) = theta_temp(l);
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+
+    <span class="keyword">end</span>
+
+
+
+<span class="keyword">end</span>
+[rows,solnsNum] = size(theta_IK);
+
+validSoln = 0; <span class="comment">% initialize a counter for counting the valid solutions.</span>
+<span class="keyword">for</span> i = 1:solnsNum
+    disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is: "</span>);
+    disp(theta_IK(:,i));
+    <span class="comment">% verification starts.</span>
+    gst_theta_IK = manipdkin(gst0, axis_joints, q_joints, type_joints, theta_IK(:,i)); <span class="comment">% compute gst to see if we get the identical gst as given.</span>
+    disp(<span class="string">"Its corresponding transformation matrix is: "</span>);
+    disp(gst_theta_IK);
+    diff = abs(gst_theta_IK-gst_theta);
+    disp(<span class="string">"The corresponding difference with the given matrix is: "</span>);
+    disp(diff);
+    <span class="keyword">if</span> norm(diff) &lt; 1.0e-10   <span class="comment">% set a criterion for checking the consistence with the given matrix.</span>
+        disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is valid!"</span>);
+        validSoln = validSoln + 1; <span class="comment">% update the validSoln counter by 1 if the solution is valid.</span>
+    <span class="keyword">else</span>
+        disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is invalid!"</span>);
+    <span class="keyword">end</span>
+    disp(<span class="string">"---------------------------------------------------------"</span>);
+    <span class="comment">% verification ends.</span>
+<span class="keyword">end</span>
+
+disp(<span class="string">"Conclusion: There are "</span> + num2str(validSoln) + <span class="string">" possible solutions in total"</span>);
+</pre><pre class="codeoutput">The given gst(theta) transformation matrix is shown below: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+No.1 solution is: 
+   -2.0944
+    2.0944
+    5.2360
+   -1.0472
+   -1.0472
+   -2.0944
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-14 *
+
+    0.0333    0.0666    0.0833    0.0860
+    0.0555    0.0666    0.1374    0.0069
+    0.1638    0.0666    0.0333    0.0222
+         0         0         0         0
+
+No.1 solution is valid!
+---------------------------------------------------------
+No.2 solution is: 
+   -2.0944
+    2.0944
+    5.2360
+    2.0944
+   -2.0944
+    1.0472
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-14 *
+
+    0.0333    0.0777    0.1055    0.0860
+    0.0777    0.0777    0.1513    0.0069
+    0.2026    0.0611    0.0444    0.0222
+         0         0         0         0
+
+No.2 solution is valid!
+---------------------------------------------------------
+No.3 solution is: 
+    1.0472
+    1.8295
+    5.2360
+    2.6311
+    0.4816
+    2.9522
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.2220    0.4441    0.8882    0.9159
+    0.2220    0.4441    0.1388    0.4163
+    0.6661    0.5274    0.3331    0.2220
+         0         0         0         0
+
+No.3 solution is valid!
+---------------------------------------------------------
+No.4 solution is: 
+    1.0472
+    1.8295
+    5.2360
+   -0.5105
+    2.6600
+   -0.1894
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.3331    0.6661    0.4996    0.7772
+    0.4441    0.3331    0.3469    0.2082
+    0.3886    0.4163    0.3331         0
+         0         0         0         0
+
+No.4 solution is valid!
+---------------------------------------------------------
+No.5 solution is: 
+   -2.0944
+    1.3121
+    1.0472
+   -2.6311
+   -0.4816
+   -0.1894
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.2220         0         0    0.1943
+    0.1110    0.2220    0.4302    0.1665
+    0.1943    0.3886    0.1110    0.0555
+         0         0         0         0
+
+No.5 solution is valid!
+---------------------------------------------------------
+No.6 solution is: 
+   -2.0944
+    1.3121
+    1.0472
+    0.5105
+   -2.6600
+    2.9522
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.4441    0.2220         0    0.1943
+         0    0.3331    0.0833    0.1665
+    0.0278    0.0278    0.1110    0.0555
+         0         0         0         0
+
+No.6 solution is valid!
+---------------------------------------------------------
+No.7 solution is: 
+    1.0472
+    1.0472
+    1.0472
+    1.0472
+    1.0472
+    1.0472
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-14 *
+
+         0    0.0666    0.1277    0.0278
+    0.0555    0.0555    0.1388    0.0278
+    0.1998    0.0555         0    0.0111
+         0         0         0         0
+
+No.7 solution is valid!
+---------------------------------------------------------
+No.8 solution is: 
+    1.0472
+    1.0472
+    1.0472
+   -2.0944
+    2.0944
+   -2.0944
+
+Its corresponding transformation matrix is: 
+    0.7996    0.5413    0.2600   -0.1299
+    0.5770   -0.8125   -0.0831    0.0750
+    0.1663    0.2165   -0.9620   -0.3258
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.3331    0.3331    0.1665    0.4718
+    0.3331    0.4441    0.5274    0.3886
+    0.6384    0.6661    0.3331    0.3331
+         0         0         0         0
+
+No.8 solution is valid!
+---------------------------------------------------------
+Conclusion: There are 8 possible solutions in total
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MEC529 Matlab Homework 5 Problem 5, IK for elbow manipulator Codes Created by Yongxin Guo
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+% Codes summary:
+% assign the given joint angles for computing the given gst transformation
+% matrix via forward kinematics algorithms. The given gst matrix was fed into the IK algorithm codes for
+% computing the joint angles and we can be able to compare one of the
+% solutions we got with the given joint angles at the beginning, and the
+% rest of the solutions will be passed into the forward kinematics algorithms to see if we can get back
+% the original gst matrix. The above will be the verification process for
+% the IK algorithm codes.
+% create gst0 matrix.
+
+close all
+clear
+clc
+
+% assign configuration constants.
+l0 = 0.8;
+l1 = 0.8;
+l2 = 0.5;
+theta = (pi/3)*ones(6,1);
+R0 = eye(3);
+P0 = [0;l1+l2;l0];
+gst0 = [R0,P0;[0 0 0],1];
+% create axis of motion.
+axis1 = [0;0;1];
+axis2 = [-1;0;0];
+axis3 = [-1;0;0];
+axis4 = [0;0;1];
+axis5 = [-1;0;0];
+axis6 = [0;1;0];
+axis_joints = [axis1,axis2,axis3,axis4,axis5,axis6];
+% create q_matrix.
+q1 = [0;0;l0];
+q2 = q1;
+q3 = [0;l1;l0]; % q3 here is q2 in the homework figure.
+q4 = [0;l1+l2;l0];
+q5 = q4;
+q6 = q4; % q4 here is q3 in the homework figure.
+q_joints = [q1,q2,q3,q4,q5,q6];
+% create matrix for the type of joints
+type_joints = ["R";"R";"R";"R";"R";"R"];
+% compute gst(theta)
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+disp("The given gst(theta) transformation matrix is shown below: ");
+disp(gst_theta); % this will be the given gst matrix for our IK codes.
+
+
+%*****************************IK algorithms code**************************
+% gst_theta and gst0 are given transformation matrices, gst_theta will be used for future
+% verification!
+pt_p = q4; % select a point at the intersecting of axis 4,5 and 6.
+pt_q = q1; % select a point along axis 1 and 2.
+pt_p_prime = pt_q; % same as point q.
+pt_p_doublePrime = [0;0;0]; % select a point that is not along axis 6, which can be the origin.
+pt_r1 = q3; % for theta3.
+pt_r2 = q1; % for theta1 and 2.
+pt_r3 = q4; % for theta4 and 5.
+pt_r4 = q4; % for theta6.
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-get theta3REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% calculate gst*g(0)^-1, which is g.
+R0t = transpose(R0);
+gst0_inv = [R0t, -1*R0t*P0; [0 0 0], 1];
+g = gst_theta*gst0_inv;
+delta = g*[pt_p;1]-[pt_q;1];
+delta_mag = sqrt(transpose(delta)*delta);
+% use SP3.
+theta3 = PadenKahanSP3(axis3, pt_p, pt_q, pt_r1, delta_mag);
+% There will be 2 possible solns for theta3.
+sz = length(theta3); % get the number of possible theta3 solns.
+% allocating the size for theta first.
+theta1 = zeros(sz,1);
+theta2 = theta1;
+theta4 = theta1;
+theta5 = theta1;
+theta6 = theta1;
+% declare 3 by 3 indentity matrix for future use.
+I = eye(3);
+counter = 0; % initialize a counter for counting the total soln number
+dof = 6; % the d.o.f for the elbow manipulator.
+for i = 1:sz
+    R3 = AxisAngle_to_Rot(axis3,theta3(i));
+    P3 = (eye(3)-R3)*q3;
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHget theta1 and theta2 (SP2)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    temp_pt = [R3,P3;[0 0 0],1]*[pt_p;1];
+    gp = g*[pt_p;1];
+    % use SP2
+    theta1and2 = PadenKahanSP2(axis1,axis2,temp_pt(1:3),gp(1:3),pt_r2);
+    sz1 = length(theta1and2); % get the length of theta1and2. number of solns.
+    for j = 1:sz1
+        theta1(j) = theta1and2(1,j);
+        theta2(j) = theta1and2(2,j);
+        
+        %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHget theta4 and theta5 (SP2)REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+        % compute gst_theta1_inv.
+        R1 = AxisAngle_to_Rot(axis1,theta1(j));
+        R1t = transpose(R1);
+        P1 = (I-R1)*q1;
+        gst_theta1_inv = [R1t,-1*R1t*P1; [0 0 0], 1];
+        % compute gst_theta2_inv.
+        R2 = AxisAngle_to_Rot(axis2,theta2(j));
+        R2t = transpose(R2);
+        P2 = (I-R2)*q2;
+        gst_theta2_inv = [R2t,-1*R2t*P2; [0 0 0], 1];
+        % compute gst_theta3_inv.
+        R3t = transpose(R3);
+        P3 = (I-R3)*q3;
+        gst_theta3_inv = [R3t,-1*R3t*P3; [0 0 0], 1];
+        % multiplying together
+        gst_theta321_inv = gst_theta3_inv*gst_theta2_inv*gst_theta1_inv;
+        % compute point q_prime.
+        pt_q_prime = gst_theta321_inv*g*[pt_p_prime;1];
+        % use SP2
+        theta4and5 = PadenKahanSP2(axis4,axis5,pt_p_prime,pt_q_prime(1:3),pt_r3);
+        sz2 = length(theta4and5); % get the length of theta4and5.
+        for k = 1:sz2
+            counter = counter + 1; % update the counter by 1.
+            theta4(k) = theta4and5(1,k);
+            theta5(k) = theta4and5(2,k);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHget theta6REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+            % compute gst_theta5_inv.
+            R5 = AxisAngle_to_Rot(axis5,theta5(k));
+            R5t = transpose(R5);
+            P5 = (I-R5)*q5;
+            gst_theta5_inv = [R5t,-1*R5t*P5; [0 0 0], 1];
+            % compute gst_theta4_inv.
+            R4 = AxisAngle_to_Rot(axis4,theta4(k));
+            R4t = transpose(R4);
+            P4 = (I-R4)*q4;
+            gst_theta4_inv = [R4t,-1*R4t*P4; [0 0 0], 1];
+            % multiplying together
+            gst_theta54_inv = gst_theta5_inv*gst_theta4_inv;
+            % get gst_theta54321_inv
+            gst_theta54321_inv = gst_theta54_inv*gst_theta321_inv;
+            % compute point q_doublePrime
+            pt_q_doublePrime = gst_theta54321_inv*g*[pt_p_doublePrime;1];
+            % use SP1
+            theta6 = PadenKahanSP1(axis6,pt_p_doublePrime,pt_q_doublePrime(1:3),pt_r4);
+            %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-Assign all the theta solnsREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+            theta_temp = [theta1(j);theta2(j);theta3(i);theta4(k);theta5(k);theta6];
+            for l = 1:dof
+                theta_IK(l,counter) = theta_temp(l);
+            end
+            
+        end
+        
+        
+    end
+    
+    
+    
+end
+[rows,solnsNum] = size(theta_IK);
+
+validSoln = 0; % initialize a counter for counting the valid solutions.
+for i = 1:solnsNum
+    disp("No." + num2str(i) + " solution is: ");
+    disp(theta_IK(:,i));
+    % verification starts.
+    gst_theta_IK = manipdkin(gst0, axis_joints, q_joints, type_joints, theta_IK(:,i)); % compute gst to see if we get the identical gst as given.
+    disp("Its corresponding transformation matrix is: ");
+    disp(gst_theta_IK);
+    diff = abs(gst_theta_IK-gst_theta);
+    disp("The corresponding difference with the given matrix is: ");
+    disp(diff);
+    if norm(diff) < 1.0e-10   % set a criterion for checking the consistence with the given matrix.
+        disp("No." + num2str(i) + " solution is valid!");
+        validSoln = validSoln + 1; % update the validSoln counter by 1 if the solution is valid.
+    else
+        disp("No." + num2str(i) + " solution is invalid!");
+    end
+    disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-");
+    % verification ends.
+end
+
+disp("Conclusion: There are " + num2str(validSoln) + " possible solutions in total");
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,347 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>scaraIK</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-31"><meta name="DC.source" content="scaraIK.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% MEC529 Matlab Homework 5 Problem 4, IK for SCARA Codes Created by Yongxin Guo</span>
+addpath(<span class="string">'/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions'</span>);
+<span class="comment">% Codes summary:</span>
+<span class="comment">% assign the given joint angles for computing the given gst transformation</span>
+<span class="comment">% matrix via forward kinematics algorithms. The given gst matrix was fed into the IK algorithm codes for</span>
+<span class="comment">% computing the joint angles and we can be able to compare one of the</span>
+<span class="comment">% solutions we got with the given joint angles at the beginning, and the</span>
+<span class="comment">% rest of the solutions will be passed into the forward kinematics algorithms to see if we can get back</span>
+<span class="comment">% the original gst matrix. The above will be the verification process for</span>
+<span class="comment">% the IK algorithm codes.</span>
+
+close <span class="string">all</span>
+clear
+clc
+
+<span class="comment">% assign configuration variables</span>
+l0 = 0.2;
+l1 = 0.6;
+l2 = 0.3;
+<span class="comment">% create gst0 matrix.</span>
+R0 = eye(3);
+P0 = [0;l1+l2;l0];
+gst0 = [R0,P0;[0 0 0],1];
+<span class="comment">% create axis of rotation.</span>
+axis_joints = [0;0;1]*ones(1,4);
+<span class="comment">% create q_matrix.</span>
+q1 = [0;0;0];
+q2 = [0;l1;0];
+q3 = [0;l1+l2;0];
+q4 = [0;0;0];
+q_joints = [q1,q2,q3,q4];
+<span class="comment">% create matrix for the type of joints</span>
+type_joints = [<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"R"</span>;<span class="string">"P"</span>];
+<span class="comment">% assign the joint angles for SCARA.</span>
+theta = [(pi/4) * ones(3,1); 0.1];
+<span class="comment">% compute gst(theta)</span>
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+disp(<span class="string">"The given gst(theta) transformation matrix is shown below: "</span>);
+disp(gst_theta);
+
+<span class="comment">%*****************************IK algorithms code**************************</span>
+<span class="comment">% gst_theta is given transformation matrix, which will be used for future</span>
+<span class="comment">% verification!</span>
+pt_p = q3; <span class="comment">% choose a point p along axis of xi_3, which is also point p' as illustrated in my HW solns.</span>
+pt_q = q1; <span class="comment">% choose a point q along axis of xi_1, which is also point p'' as illustrated in my HW solns.</span>
+pt_r1 = q2; <span class="comment">% choose a point r1 along axis of xi_2 for computing theta2 in SP3, as illustrated in my HW solns.</span>
+pt_r2 = q1; <span class="comment">% choose a point r2 along axis of xi_1 for computing theta1 in SP1, as illustrated in my HW solns.</span>
+pt_r3 = q3; <span class="comment">% choose a point r3 along axis of xi_3 for computing theta3 in SP1, as illustrated in my HW solns.</span>
+<span class="comment">% get theta4 first</span>
+theta4 = gst_theta(3,4) - l0;
+<span class="comment">%---------------------get theta2-------------------------</span>
+R0t = transpose(R0);
+gst0_inv = [R0t, -1*R0t*P0; [0 0 0], 1];
+gst_theta4_inv = [eye(3),-1*axis_joints(:,4)*theta(4);[0 0 0], 1]; <span class="comment">% transformation matrix for only negative xi4 axis</span>
+delta = gst_theta*gst0_inv*gst_theta4_inv*[pt_p;1] - [pt_q;1]; <span class="comment">% compute the vector delta. Note that we need homogenous representation for points.</span>
+delta_mag = sqrt(transpose(delta)*delta); <span class="comment">% compute the magnitude of delta</span>
+<span class="comment">% use SP3 to get theta2. There will be 2 possible solns for theta2.</span>
+theta2 = PadenKahanSP3(axis_joints(:,2), pt_p, pt_q, pt_r1, delta_mag); <span class="comment">% Note that we don't need homogenous representation of point in this function.</span>
+pt_q_prime = gst_theta*gst0_inv*gst_theta4_inv*[pt_p;1]; <span class="comment">% compute point q prime shown in HW soln paper. Note this is homo. rep. of a point.</span>
+<span class="keyword">for</span> m = 1:length(theta2)
+    <span class="comment">%---------------------get theta1--------------------------</span>
+    R2 = AxisAngle_to_Rot(axis_joints(:,2),theta2(m)); <span class="comment">% Rotation matrix for axis of xi2 with angle theta2.</span>
+    P2 = (eye(3)-R2)*q2; <span class="comment">% Position vector for transformation around xi2.</span>
+    pt_p_temp = [R2,P2;[0 0 0],1] * [pt_p;1]; <span class="comment">% compute temporary point p after rotation around xi2 by theta2.</span>
+    <span class="comment">% use SP1 to get theta1.</span>
+    theta1_m = PadenKahanSP1(axis_joints(:,1),pt_p_temp(1:3),pt_q_prime(1:3),pt_r2); <span class="comment">% Note the points here are not homo. rep.</span>
+    theta1(m,1) = theta1_m; <span class="comment">% assign theta1 for corresponding theta2.</span>
+    <span class="comment">%---------------------get theta3--------------------------</span>
+    <span class="comment">% compute exp(-xi2*theta2).</span>
+    R2t = transpose(R2);
+    gst_theta2_inv = [R2t,-1*R2t*P2;[0 0 0], 1]; <span class="comment">% gst(theta2) matrix inverse, which is just exp(-xi2*theta2).</span>
+    <span class="comment">% compute exp(-xi1*theta1).</span>
+    R1 = AxisAngle_to_Rot(axis_joints(:,1),theta1_m);
+    P1 = (eye(3)-R1)*q1; <span class="comment">% Position vector for transformation around xi1.</span>
+    R1t = transpose(R1);
+    gst_theta1_inv = [R1t,-1*R1t*P1;[0 0 0], 1]; <span class="comment">% gst(theta1) matrix inverse, which is just exp(-xi1*theta1);</span>
+    pt_q_doublePrime = gst_theta2_inv*gst_theta1_inv*gst_theta*gst0_inv*gst_theta4_inv*[pt_q;1]; <span class="comment">% compute point q double prime</span>
+    <span class="comment">% use SP1 to get theta3.</span>
+    theta3_m = PadenKahanSP1(axis_joints(:,3),pt_q,pt_q_doublePrime(1:3),pt_r3); <span class="comment">% Note that no homo. rep. of point here</span>
+    theta3(m,1) = theta3_m; <span class="comment">% assign theta3 for corresponding theta2 and theta1.</span>
+<span class="keyword">end</span>
+
+
+<span class="comment">%---------------------concatenating all the possible solns-----------------</span>
+theta_IK = transpose([theta1,theta2,theta3,theta4*ones(2,1)]);
+[rows,solnsNum] = size(theta_IK);
+
+validSoln = 0; <span class="comment">% initialize a counter for counting the valid solutions.</span>
+<span class="keyword">for</span> i = 1:solnsNum
+    disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is: "</span>);
+    disp(theta_IK(:,i));
+    <span class="comment">% verification starts.</span>
+    gst_theta_IK = manipdkin(gst0, axis_joints, q_joints, type_joints, theta_IK(:,i)); <span class="comment">% compute gst to see if we get the identical gst as given.</span>
+    disp(<span class="string">"Its corresponding transformation matrix is: "</span>);
+    disp(gst_theta_IK);
+    diff = abs(gst_theta_IK-gst_theta);
+    disp(<span class="string">"The corresponding difference with the given matrix is: "</span>);
+    disp(diff);
+    <span class="keyword">if</span> norm(diff) &lt; 1.0e-10   <span class="comment">% set a criterion for checking the consistence with the given matrix.</span>
+        disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is valid!"</span>);
+        validSoln = validSoln + 1; <span class="comment">% update the validSoln counter by 1 if the solution is valid.</span>
+    <span class="keyword">else</span>
+        disp(<span class="string">"No."</span> + num2str(i) + <span class="string">" solution is invalid!"</span>);
+    <span class="keyword">end</span>
+    disp(<span class="string">"---------------------------------------------------------"</span>);
+    <span class="comment">% verification ends.</span>
+<span class="keyword">end</span>
+
+disp(<span class="string">"Conclusion: There are "</span> + num2str(validSoln) + <span class="string">" possible solutions in total"</span>);
+</pre><pre class="codeoutput">The given gst(theta) transformation matrix is shown below: 
+   -0.7071   -0.7071         0   -0.7243
+    0.7071   -0.7071         0    0.4243
+         0         0    1.0000    0.3000
+         0         0         0    1.0000
+
+No.1 solution is: 
+    1.2964
+    5.4978
+    1.8452
+    0.1000
+
+Its corresponding transformation matrix is: 
+   -0.7071   -0.7071         0   -0.7243
+    0.7071   -0.7071         0    0.4243
+         0         0    1.0000    0.3000
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.4441    0.2220         0         0
+    0.2220    0.4441         0    0.2220
+         0         0         0         0
+         0         0         0         0
+
+No.1 solution is valid!
+---------------------------------------------------------
+No.2 solution is: 
+    0.7854
+    0.7854
+    0.7854
+    0.1000
+
+Its corresponding transformation matrix is: 
+   -0.7071   -0.7071         0   -0.7243
+    0.7071   -0.7071         0    0.4243
+         0         0    1.0000    0.3000
+         0         0         0    1.0000
+
+The corresponding difference with the given matrix is: 
+   1.0e-15 *
+
+    0.1110    0.1110         0    0.1110
+    0.1110    0.1110         0    0.0555
+         0         0         0         0
+         0         0         0         0
+
+No.2 solution is valid!
+---------------------------------------------------------
+Conclusion: There are 2 possible solutions in total
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MEC529 Matlab Homework 5 Problem 4, IK for SCARA Codes Created by Yongxin Guo
+addpath('/Users/guoyongxin/Desktop/Assignment_Academics/Senior_Second semester/MEC529/Myfunctions');
+% Codes summary:
+% assign the given joint angles for computing the given gst transformation
+% matrix via forward kinematics algorithms. The given gst matrix was fed into the IK algorithm codes for
+% computing the joint angles and we can be able to compare one of the
+% solutions we got with the given joint angles at the beginning, and the
+% rest of the solutions will be passed into the forward kinematics algorithms to see if we can get back
+% the original gst matrix. The above will be the verification process for
+% the IK algorithm codes.
+
+close all
+clear
+clc
+
+% assign configuration variables
+l0 = 0.2;
+l1 = 0.6;
+l2 = 0.3;
+% create gst0 matrix.
+R0 = eye(3);
+P0 = [0;l1+l2;l0];
+gst0 = [R0,P0;[0 0 0],1];
+% create axis of rotation.
+axis_joints = [0;0;1]*ones(1,4);
+% create q_matrix.
+q1 = [0;0;0];
+q2 = [0;l1;0];
+q3 = [0;l1+l2;0];
+q4 = [0;0;0];
+q_joints = [q1,q2,q3,q4];
+% create matrix for the type of joints
+type_joints = ["R";"R";"R";"P"];
+% assign the joint angles for SCARA.
+theta = [(pi/4) * ones(3,1); 0.1];
+% compute gst(theta)
+gst_theta = manipdkin(gst0, axis_joints, q_joints, type_joints, theta);
+disp("The given gst(theta) transformation matrix is shown below: ");
+disp(gst_theta);
+
+%*****************************IK algorithms code**************************
+% gst_theta is given transformation matrix, which will be used for future
+% verification!
+pt_p = q3; % choose a point p along axis of xi_3, which is also point p' as illustrated in my HW solns.
+pt_q = q1; % choose a point q along axis of xi_1, which is also point p'' as illustrated in my HW solns.
+pt_r1 = q2; % choose a point r1 along axis of xi_2 for computing theta2 in SP3, as illustrated in my HW solns.
+pt_r2 = q1; % choose a point r2 along axis of xi_1 for computing theta1 in SP1, as illustrated in my HW solns.
+pt_r3 = q3; % choose a point r3 along axis of xi_3 for computing theta3 in SP1, as illustrated in my HW solns.
+% get theta4 first
+theta4 = gst_theta(3,4) - l0;
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-get theta2REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+R0t = transpose(R0);
+gst0_inv = [R0t, -1*R0t*P0; [0 0 0], 1];
+gst_theta4_inv = [eye(3),-1*axis_joints(:,4)*theta(4);[0 0 0], 1]; % transformation matrix for only negative xi4 axis
+delta = gst_theta*gst0_inv*gst_theta4_inv*[pt_p;1] - [pt_q;1]; % compute the vector delta. Note that we need homogenous representation for points.
+delta_mag = sqrt(transpose(delta)*delta); % compute the magnitude of delta
+% use SP3 to get theta2. There will be 2 possible solns for theta2.
+theta2 = PadenKahanSP3(axis_joints(:,2), pt_p, pt_q, pt_r1, delta_mag); % Note that we don't need homogenous representation of point in this function.
+pt_q_prime = gst_theta*gst0_inv*gst_theta4_inv*[pt_p;1]; % compute point q prime shown in HW soln paper. Note this is homo. rep. of a point.
+for m = 1:length(theta2)
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-get theta1REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    R2 = AxisAngle_to_Rot(axis_joints(:,2),theta2(m)); % Rotation matrix for axis of xi2 with angle theta2.
+    P2 = (eye(3)-R2)*q2; % Position vector for transformation around xi2.
+    pt_p_temp = [R2,P2;[0 0 0],1] * [pt_p;1]; % compute temporary point p after rotation around xi2 by theta2.
+    % use SP1 to get theta1.
+    theta1_m = PadenKahanSP1(axis_joints(:,1),pt_p_temp(1:3),pt_q_prime(1:3),pt_r2); % Note the points here are not homo. rep.
+    theta1(m,1) = theta1_m; % assign theta1 for corresponding theta2.
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-get theta3REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % compute exp(-xi2*theta2).
+    R2t = transpose(R2);
+    gst_theta2_inv = [R2t,-1*R2t*P2;[0 0 0], 1]; % gst(theta2) matrix inverse, which is just exp(-xi2*theta2).
+    % compute exp(-xi1*theta1).
+    R1 = AxisAngle_to_Rot(axis_joints(:,1),theta1_m);
+    P1 = (eye(3)-R1)*q1; % Position vector for transformation around xi1.
+    R1t = transpose(R1);
+    gst_theta1_inv = [R1t,-1*R1t*P1;[0 0 0], 1]; % gst(theta1) matrix inverse, which is just exp(-xi1*theta1);
+    pt_q_doublePrime = gst_theta2_inv*gst_theta1_inv*gst_theta*gst0_inv*gst_theta4_inv*[pt_q;1]; % compute point q double prime
+    % use SP1 to get theta3.
+    theta3_m = PadenKahanSP1(axis_joints(:,3),pt_q,pt_q_doublePrime(1:3),pt_r3); % Note that no homo. rep. of point here
+    theta3(m,1) = theta3_m; % assign theta3 for corresponding theta2 and theta1.
+end
+
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-concatenating all the possible solnsREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+theta_IK = transpose([theta1,theta2,theta3,theta4*ones(2,1)]);
+[rows,solnsNum] = size(theta_IK);
+
+validSoln = 0; % initialize a counter for counting the valid solutions.
+for i = 1:solnsNum
+    disp("No." + num2str(i) + " solution is: ");
+    disp(theta_IK(:,i));
+    % verification starts.
+    gst_theta_IK = manipdkin(gst0, axis_joints, q_joints, type_joints, theta_IK(:,i)); % compute gst to see if we get the identical gst as given.
+    disp("Its corresponding transformation matrix is: ");
+    disp(gst_theta_IK);
+    diff = abs(gst_theta_IK-gst_theta);
+    disp("The corresponding difference with the given matrix is: ");
+    disp(diff);
+    if norm(diff) < 1.0e-10   % set a criterion for checking the consistence with the given matrix.
+        disp("No." + num2str(i) + " solution is valid!");
+        validSoln = validSoln + 1; % update the validSoln counter by 1 if the solution is valid.
+    else
+        disp("No." + num2str(i) + " solution is invalid!");
+    end
+    disp("REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-");
+    % verification ends.
+end
+
+disp("Conclusion: There are " + num2str(validSoln) + " possible solutions in total");
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
