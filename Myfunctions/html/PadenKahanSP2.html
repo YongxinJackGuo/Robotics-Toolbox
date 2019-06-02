@@ -1,0 +1,180 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>PadenKahanSP2</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-31"><meta name="DC.source" content="PadenKahanSP2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% HW5 Problem 2: Paden Kahan Sub-problem 2. Double zero-pitch twist with point p, q and c.</span>
+<span class="keyword">function</span> angles = PadenKahanSP2(axis_rotation1,axis_rotation2,pt_p,pt_q,pt_r)
+<span class="comment">% compute alpha and beta, which are the vector rp and rq.</span>
+alpha = pt_p - pt_r;
+beta = pt_q - pt_r;
+<span class="comment">% assign axes of rotation for convenience.</span>
+w1 = axis_rotation1;
+w2 = axis_rotation2;
+<span class="comment">% compute a1, a2, and a3.</span>
+den = (transpose(w1)*w2)^2-1;
+a1 = ((transpose(w1)*w2)*transpose(w2)*alpha-transpose(w1)*beta)/den;
+a2 = ((transpose(w1)*w2)*transpose(w1)*beta-transpose(w2)*alpha)/den;
+alpha_mag_sq = transpose(alpha)*alpha; <span class="comment">% compute the magnitude of alpha</span>
+w1Xw2_mag_sq = transpose(cross(w1,w2))*cross(w1,w2); <span class="comment">% compute the magnitude of the vector of w1 cross w2.</span>
+a3_sq = (alpha_mag_sq-a1^2-a2^2-2*a1*a2*transpose(w1)*w2)/w1Xw2_mag_sq;
+<span class="keyword">if</span> a3_sq == 0
+    a3 = a3_sq; <span class="comment">% only one soln, when two circles intersect</span>
+    <span class="comment">% compute vector gamma, which is vector rc.</span>
+    gamma = a1*w1+a2*w2+a3*(cross(w1,w2));
+    pt_c = gamma + pt_r;
+     <span class="comment">% use SP1 function to get angles.</span>
+    theta2 = PadenKahanSP1(w2,pt_p,pt_c,pt_r);
+    theta1 = PadenKahanSP1(w1,pt_c,pt_q,pt_r);
+    angles(1,1:2) = [theta1; theta2];
+<span class="keyword">elseif</span> a3_sq &lt; 0
+    angles = <span class="string">"doesn't exit"</span>; <span class="comment">% no soln, two circles fail to intersect</span>
+<span class="keyword">else</span>
+    <span class="comment">% two solns.</span>
+    a3_1 = sqrt(a3_sq);
+    a3_2 = -1*a3_1;
+    <span class="comment">% compute vector gamma, which is vector rc.</span>
+    gamma_1 = a1*w1+a2*w2+a3_1*(cross(w1,w2));
+    gamma_2 = a1*w1+a2*w2+a3_2*(cross(w1,w2));
+    <span class="comment">% compute point c.</span>
+    pt_c_1 = gamma_1 + pt_r;
+    pt_c_2 = gamma_2 + pt_r;
+    <span class="comment">% use SP1 function to get angles.</span>
+    <span class="comment">% first soln.</span>
+    theta2_1 = PadenKahanSP1(w2,pt_p,pt_c_1,pt_r);
+    theta1_1 = PadenKahanSP1(w1,pt_c_1,pt_q,pt_r);
+    angles(1:2,1) = [theta1_1; theta2_1];
+    <span class="comment">% second soln</span>
+    theta2_2 = PadenKahanSP1(w2,pt_p,pt_c_2,pt_r);
+    theta1_2 = PadenKahanSP1(w1,pt_c_2,pt_q,pt_r);
+    angles(1:2,2) = [theta1_2; theta2_2];
+<span class="keyword">end</span>
+
+
+
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in PadenKahanSP2 (line 4)
+alpha = pt_p - pt_r;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% HW5 Problem 2: Paden Kahan Sub-problem 2. Double zero-pitch twist with point p, q and c.
+function angles = PadenKahanSP2(axis_rotation1,axis_rotation2,pt_p,pt_q,pt_r)
+% compute alpha and beta, which are the vector rp and rq.
+alpha = pt_p - pt_r;
+beta = pt_q - pt_r;
+% assign axes of rotation for convenience.
+w1 = axis_rotation1;
+w2 = axis_rotation2;
+% compute a1, a2, and a3.
+den = (transpose(w1)*w2)^2-1;
+a1 = ((transpose(w1)*w2)*transpose(w2)*alpha-transpose(w1)*beta)/den;
+a2 = ((transpose(w1)*w2)*transpose(w1)*beta-transpose(w2)*alpha)/den;
+alpha_mag_sq = transpose(alpha)*alpha; % compute the magnitude of alpha
+w1Xw2_mag_sq = transpose(cross(w1,w2))*cross(w1,w2); % compute the magnitude of the vector of w1 cross w2.
+a3_sq = (alpha_mag_sq-a1^2-a2^2-2*a1*a2*transpose(w1)*w2)/w1Xw2_mag_sq;
+if a3_sq == 0
+    a3 = a3_sq; % only one soln, when two circles intersect
+    % compute vector gamma, which is vector rc.
+    gamma = a1*w1+a2*w2+a3*(cross(w1,w2));
+    pt_c = gamma + pt_r;
+     % use SP1 function to get angles.
+    theta2 = PadenKahanSP1(w2,pt_p,pt_c,pt_r);
+    theta1 = PadenKahanSP1(w1,pt_c,pt_q,pt_r);
+    angles(1,1:2) = [theta1; theta2];
+elseif a3_sq < 0
+    angles = "doesn't exit"; % no soln, two circles fail to intersect
+else
+    % two solns.
+    a3_1 = sqrt(a3_sq);
+    a3_2 = -1*a3_1; 
+    % compute vector gamma, which is vector rc.
+    gamma_1 = a1*w1+a2*w2+a3_1*(cross(w1,w2));
+    gamma_2 = a1*w1+a2*w2+a3_2*(cross(w1,w2));
+    % compute point c.
+    pt_c_1 = gamma_1 + pt_r;
+    pt_c_2 = gamma_2 + pt_r;
+    % use SP1 function to get angles.
+    % first soln.
+    theta2_1 = PadenKahanSP1(w2,pt_p,pt_c_1,pt_r);
+    theta1_1 = PadenKahanSP1(w1,pt_c_1,pt_q,pt_r);
+    angles(1:2,1) = [theta1_1; theta2_1];
+    % second soln
+    theta2_2 = PadenKahanSP1(w2,pt_p,pt_c_2,pt_r);
+    theta1_2 = PadenKahanSP1(w1,pt_c_2,pt_q,pt_r);
+    angles(1:2,2) = [theta1_2; theta2_2];
+end
+
+    
+
+
+end
+
+
+##### SOURCE END #####
+--></body></html>
